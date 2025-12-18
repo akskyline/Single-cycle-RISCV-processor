@@ -1,25 +1,26 @@
 //Main Decoder
 module main_decoder (
-    input  logic [31:0] ins, 
-    input logic zero,     
-    output logic [1:0] imm_src,  alu_op,    
-    output logic regwrite, alu_src, memwrite, result_src, branch,jump,pc_src); 
-logic [6:0] opcode;
+    input logic [31:0] ins, 
+    input logic  zero,     
+    output logic [1:0] imm_src, alu_op, result_src,    
+    output logic regwrite, alu_src, memwrite, branch, jump, pc_src); 
 
+logic [6:0] opcode;
 assign opcode = ins[6:0];
-logic [9:0] controls;
+logic [10:0] controls;
 
 always_comb
 case (opcode)
-7'b0000011: controls = 10'b1_00_1_0_1_00_0_0;  //LW
-7'b0100011: controls = 10'b0_01_1_1_x_00_0_0;  //SW
-7'b0110011: controls = 10'b1_xx_0_0_0_10_0_0;  //R-type
-7'b1100011: controls = 10'b0_10_0_0_x_01_1_0;  //Beq
-7'b0010011: controls = 10'b1_00_1_0_0_10_0_0;  //addi
-default:    controls = 10'bx_xx_x_x_x_xx_x_x;  
+7'b0000011: controls = 11'b1_00_1_0_01_0_00_0;  //LW
+7'b0100011: controls = 11'b0_01_1_1_xx_0_00_0;  //SW
+7'b0110011: controls = 11'b1_xx_0_0_00_0_10_0;  //R-type
+7'b1100011: controls = 11'b0_10_0_0_xx_1_01_0;  //Beq
+7'b0010011: controls = 11'b1_00_1_0_00_0_10_0;  //addi
+7'b1101111: controls = 11'b1_11_x_0_10_0_xx_1;  //Jal
+default:    controls = 11'bx_xx_x_x_xx_x_xx_x;  
 endcase
 
-assign {regwrite, imm_src, alu_src, memwrite, result_src, alu_op, branch, jump} = controls;
+assign {regwrite, imm_src, alu_src, memwrite, result_src, branch, alu_op, jump} = controls;
 
 assign pc_src = (zero && branch)|jump;
 
@@ -47,7 +48,7 @@ assign funct7 = ins[31:25];
                     3'b010: ALUControl = 3'b101; // slt
                     3'b110: ALUControl = 3'b011; // or
                     3'b111: ALUControl = 3'b010; // and
-                    default:  ALUControl = 3'bxxx; // Default ADD
+                    default:ALUControl = 3'bxxx; // Default 
                 endcase
                 end
             default: ALUControl = 3'bxxx;
@@ -59,13 +60,12 @@ endmodule
 //Control Unit using above two sub prts(alu and main decoder)
 module control_unit (
     input  logic [31:0] ins,     // bits [31:25]
-    input  logic zero,
+    input  logic       zero,
     output logic [2:0] ALUControl, // from ALU decoder
-    output logic [1:0] imm_src,
+    output logic [1:0] imm_src, result_src,
     output logic       regwrite,
     output logic       alu_src,
     output logic       memwrite,
-    output logic       result_src,
     output logic       branch,
     output logic       jump,
     output logic       pc_src
@@ -74,9 +74,7 @@ module control_unit (
     // Internal connection
     logic [1:0] alu_op;
 
-    //----------------------------------------
     // Instantiate Main Decoder
-    //----------------------------------------
     main_decoder MAIN_DEC (
         .ins      (ins),
         .zero      (zero),
@@ -91,9 +89,7 @@ module control_unit (
         .pc_src    (pc_src)
     );
 
-    //----------------------------------------
     // Instantiate ALU Decoder
-    //----------------------------------------
     alu_decoder_3bit ALU_DEC (
         .alu_op     (alu_op),
         .ins        (ins),

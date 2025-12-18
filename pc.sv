@@ -6,12 +6,13 @@ module program_counter(
 );
     always_ff @(posedge clk or posedge rst) begin
         if (rst)
-            pc <= 32'h00000100;    // initial address
+            pc <= 32'h00000000;    // initial address
         else
             pc <= pc_next;
     end
 endmodule
-//Alu_pc
+
+//Alu_pc, pc + 4
 module alu_pc(
     input  logic [31:0] pc,
     output logic [31:0] pcplus_4
@@ -42,43 +43,36 @@ module pc_top(
     input  logic        clk, rst, pc_src,    
     input  logic [31:0] imm,              
     output logic [31:0] pc,
+    output logic [31:0] pcplus_4,
     output logic [31:0] pc_next
 );
 
     // Internal signal
-    logic [31:0] pcplus_4;
+
     logic [31:0] pc_target;
 
-    //===========================
     // 1. Program Counter Register
-    //===========================
-    program_counter pc_reg (
+    program_counter pc_current (
         .clk(clk),
         .rst(rst),
         .pc_next(pc_next),
         .pc(pc)
     );
 
-    //===========================
     // 2. ALU for PC + 4
-    //===========================
-    alu_pc pc_adder (
+    alu_pc pc_adder_4 (
         .pc(pc),
         .pcplus_4(pcplus_4)
     );
 
-    //===========================
     // 3. ALU for PC + Immediate (Branch Target)
-    //===========================
     alu_pc_target pc_target_alu (
         .pc(pc),
         .imm(imm),
         .pc_target(pc_target)
     );
 
-    //===========================
     // 4. MUX for selecting next PC
-    //===========================
     pc_src_mux pc_mux (
         .pcplus_4(pcplus_4),      
         .pc_target(pc_target),  

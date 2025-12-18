@@ -2,7 +2,7 @@
 module register_file(
     input  logic  clk, regwrite, 
     input  logic [31:0] instruction,
-    input  logic [31:0] W_Data,
+    input  logic [31:0] WD_reg,
     output logic [31:0] RD1, RD2
 );
     logic [4:0] A1, A2, A3;
@@ -11,20 +11,17 @@ module register_file(
     assign A3 = instruction[11:7];
 
     logic [31:0] regfile [31:0];   // 32 registers, 32 bits each
-    
-initial begin
-    $readmemb("./reg_file.bin",regfile,0,31);
-end
-    // READ 
-    assign RD1 = regfile[A1];
-    assign RD2 = regfile[A2];
 
-    // WRITE 
-    always_ff @(posedge clk)
+  // WRITE 
+    always_ff @(posedge clk) 
+        begin
         if (regwrite)
-            regfile[A3] <= W_Data;
-     initial begin
-         $writememb("./reg_file.bin",regfile,0,31);
-     end     
-endmodule
+            regfile[A3] <= WD_reg;   
+         end
+    
+    // READ 
+    assign RD1 = (A1 != 5'd0)? regfile[A1] : 0;
+    assign RD2 = (A2 != 5'd0)? regfile[A2] : 0;
+
+  endmodule
 
