@@ -106,31 +106,10 @@ endmodule
 //testbench
 module sgle_cyc_processor_tb();
 reg clk,rst;
-/*wire [31:0] pc_next;
-wire [31:0] pc, instruction;
-wire regwrite, alu_src, memwrite, branch, jump, pc_src;
-wire [1:0] imm_src, result_src;
-wire [2:0] ALUControl;
-wire [31:0] alu_result;
-wire [31:0] RD; */
 
 sgle_cyc_processor dut(
 .clk(clk),
 .rst(rst)
-/*.pc(pc),
-.pc_next(pc_next),
-.instruction(instruction),
-.regwrite (regwrite),
-.alu_src   (alu_src),
-.memwrite  (memwrite),
-.result_src(result_src),
-.imm_src   (imm_src),
-.branch    (branch),
-.jump      (jump),
-.pc_src    (pc_src),
-.ALUControl (ALUControl),
-.alu_result(alu_result),
-.RD(RD) */
 );
 
 initial 
@@ -140,8 +119,7 @@ always #5 clk =~clk;
     rst = 1;
     #10;
     rst = 0;
-//repeat (10) @(posedge clk);
-#200
+repeat (10) @(posedge clk);
 $finish;
   end
 endmodule
