@@ -12,6 +12,6 @@ L1: lw x6, -4  (x9)     #0xffc4a303
        beq x4, x4, L1   #0xfe420ae3
 ```
 
-##Testbench Results:
+## Testbench Results:
 
 ![image](./simulation.png)
