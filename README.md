@@ -1,6 +1,6 @@
 # single-cycle-riscv-processor
 
-### The processor is desined for these instructions
+### The processor is verified using these instructions
 
 ```asm
       addi x9, x0, 9
